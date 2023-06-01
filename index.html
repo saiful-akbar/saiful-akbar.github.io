@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Geolocation</title>
+</head>
+
+<body>
+  <h1 id="latitude"></h1>
+  <h1 id="longitude"></h1>
+  <h2 id="alamat"></h2>
+  <iframe id="maps" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+
+  <script>
+    const geolocation = {
+      latitude: document.querySelector("#latitude"),
+      longitude: document.querySelector("#longitude"),
+      alamat: document.querySelector("#alamat"),
+      maps: document.querySelector("#maps"),
+
+      successCallback: function(position) {
+        const {
+          latitude,
+          longitude
+        } = position.coords
+        this.latitude.innerHTML = latitude;
+        this.longitude.innerHTML = longitude;
+
+        this.maps.src = `https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d253842.32894668516!2d${longitude}!3d${latitude}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNsKwMTknNTAuOSJTIDEwNsKwNDMnMTIuMSJF!5e0!3m2!1sid!2sid!4v1685594503837!5m2!1sid!2sid`
+
+        const apiUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`;
+
+        fetch(apiUrl)
+          .then((response) => response.json())
+          .then((data) => {
+            const address = data.display_name;
+            this.alamat.innerHTML = address;
+          })
+          .catch((error) => {
+            console.log("Error:", error);
+          });
+      },
+
+      errorCallback: function(error) {
+        console.log("Error occurred while retrieving location:", error);
+      },
+
+      get: function() {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            this.successCallback,
+            this.errorCallback
+          );
+        } else {
+          console.log("Geolocation is not supported by this browser.");
+        }
+      },
+    };
+
+    geolocation.get();
+  </script>
+</body>
+
+</html>
